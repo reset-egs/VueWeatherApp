@@ -3,11 +3,23 @@ export default {
     name: "App",
     data() {
         return {
-            api_key: "30ccec678e579ca698bc043babf9ed4d"
+            api_key: "30ccec678e579ca698bc043babf9ed4d",
+            url_base: "https://api.openweathermap.org/data/2.5/",
+            query: "",
+            weather: {}
         };
     },
     methods: {
-
+        async getForecast() {
+            try {
+                const response = await fetch(
+                    this.url_base + "weather?q=" + this.query + "&APPID=" + this.api_key
+                );
+                this.weather = response.data;
+            } catch (error) {
+                console.log(error);
+            }
+        }
     }
 };
 </script>
@@ -16,7 +28,13 @@ export default {
     <div id="app">
         <main>
             <div class="search-box">
-                <input type="text" class="search-bar" placeholder="Enter location"/>
+                <input 
+                    type="text" 
+                    class="search-bar" 
+                    placeholder="Enter location"
+                    v-model="query"
+                    v-on:keyup.enter="getForecast"
+                />
             </div>
 
             <div class="weather-wrap">

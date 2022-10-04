@@ -1,24 +1,40 @@
 <script>
+import { isProxy } from 'vue';
+
 export default {
     name: "App",
     data() {
         return {
-            api_key: "30ccec678e579ca698bc043babf9ed4d",
-            url_base: "https://api.openweathermap.org/data/2.5/",
+            api_key: "&APPID=30ccec678e579ca698bc043babf9ed4d",
+            url_base: "https://api.openweathermap.org/data/2.5/weather?q=",
+            units: "&units=metric",
             query: "",
-            weather: {}
+            weather: [],
+            date: null
         };
+    },
+    //implement a lifecycle method created() to run things when the website is run!
+    async created() {
+        console.log("i am here");
+        this.date = new Date().toLocaleDateString();
+        try {
+                const response = await axios.get(this.url_base + "Copenhagen" + this.api_key + this.units);
+                this.weather = await response.data;
+                this.query = "";
+            } catch (error) {
+                console.log(error);
+            }
     },
     methods: {
         async getForecast() {
             try {
-                const response = await fetch(
-                    this.url_base + "weather?q=" + this.query + "&APPID=" + this.api_key
-                );
-                this.weather = response.data;
+                const response = await axios.get(this.url_base + this.query + this.api_key + this.units);
+                this.weather = await response.data;
+                this.query = "";
             } catch (error) {
-                console.log(error);
-            }
+                alert("Please enter a valid city");
+                this.query = "";
+            }   
         }
     }
 };
@@ -40,17 +56,17 @@ export default {
             <div class="weather-wrap">
                 <div class="location-box">
                     <div class="location">
-                        Copenhagen, Denmark
+                        {{weather.name}}
                     </div>
                     <div class="date">
-                        28 September 2022
+                        {{date}}
                     </div>
                 </div>
             </div>
 
             <div class="weather-box">
-                <div class="temp">10°C</div>
-                <div class="weather">Overcast</div>
+                <div class="temp">{{Math.ceil(weather.main.temp)}}°C</div>
+                <div class="weather">{{weather.weather.at(0).description.charAt(0).toUpperCase() + weather.weather.at(0).description.slice(1)}}</div>
             </div>
         </main>
     </div>
